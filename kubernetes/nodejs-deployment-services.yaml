@@ -1,0 +1,51 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nodeapp
+  labels:
+    app: nodeapp
+spec:
+  selector:
+    matchLabels:
+      app: nodeapp
+  template:
+    metadata:
+      labels:
+        app: nodeapp
+    spec:
+      serviceAccountName: api-sa
+      volumes:
+      - name: db-creds
+        csi:
+          driver: secrets-store.csi.k8s.io
+          readOnly: true
+          volumeAttributes:
+            secretProviderClass: "db-aws-secrets"
+      imagePullSecrets:
+      - name: my-registry-key
+      containers:
+      - name: nodeapp
+        image: nguyenmanhtrinh/demo-app:nodejs-app-monitoring
+        ports:
+        - containerPort: 3000
+        imagePullPolicy: Always  
+        volumeMounts:
+          - name: db-creds
+            mountPath: /tmp
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nodeapp
+  labels:
+    app: nodeapp
+spec:
+  type: ClusterIP
+  selector:
+    app: nodeapp
+  ports:
+  - name: service
+    protocol: TCP
+    port: 3000
+    targetPort: 3000
