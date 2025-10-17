@@ -17,6 +17,8 @@ module "eks" {
   }
 
   cluster_endpoint_public_access = true
+  cluster_endpoint_private_access = true
+
   
   enable_cluster_creator_admin_permissions = true
 
@@ -28,8 +30,7 @@ module "eks" {
   eks_managed_node_groups = {
     my-node-group = {
       ami_type = "AL2023_x86_64_STANDARD"
-      instance_types = ["t3.medium"]
-
+      instance_types = ["t2.medium"]
       min_size = 1
       max_size = 3
       desired_size = 2
